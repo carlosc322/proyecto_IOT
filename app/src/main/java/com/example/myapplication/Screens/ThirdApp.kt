@@ -1,0 +1,52 @@
+package com.example.myapplication.Screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.myapplication.Component.HistorialSensor
+import com.example.myapplication.Component.ModoAutomatico
+import com.example.myapplication.Component.MostrarTemp
+import com.example.sdv.Navigation.BottomBar
+import com.example.sdv.Navigation.TopBar
+
+@Composable
+fun ThirdApp(navController: NavController){
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {TopBar(navController)},
+        bottomBar = {BottomBar()},
+
+    ){
+        paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()//OCUPA TODO EL ANCHO
+                .padding(paddingValues),
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(390.dp)//widthFijo
+                    .fillMaxHeight()
+                    .background(Color.LightGray)
+                    .align(Alignment.Center),
+                //.padding(bottom = 420.dp),//para centrar -> width fijo
+                contentAlignment = Alignment.Center
+            ){
+                HistorialSensor()
+            }
+        }
+    }
+
+}
