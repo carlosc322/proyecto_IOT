@@ -65,10 +65,10 @@ fun MostrarTemp() {
 
     Box(
         modifier = Modifier
-            .width(280.dp)
-            .height(140.dp)
+            .width(240.dp)
+            .height(120.dp)
             .clip(RoundedCornerShape(5.dp))
-            .background(Color.Blue)
+            .background(Color.White)
             .padding(8.dp) // un pequeño padding interno
     ) {
         when {
@@ -101,14 +101,15 @@ fun MostrarTemp() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(35.dp)
-                            .background(Color.Yellow),
+                            .background(Color.Black),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
                             text = "Temperatura",
                             modifier = Modifier.padding(horizontal = 10.dp),
                             fontSize = 15.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
                         )
                     }
 
@@ -122,7 +123,7 @@ fun MostrarTemp() {
                             text = "Sensor: ${sensor?.raw_value ?: 0} °C",
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 27.sp,
-                            color = Color.White
+                            color = Color.Black
                         )
                     }
                 }
@@ -156,85 +157,88 @@ fun ModoAutomatico() {
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .width(350.dp)
             .padding(20.dp)
-            .background(Color.LightGray),
+            .background(Color.LightGray)
+            .offset(y = 6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Box(
             modifier = Modifier
-                .height(37.dp)
-                .width(250.dp)
+                .height(33.dp)
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(
                     topStart = 3.dp,
                     topEnd = 3.dp,
                     bottomEnd = 3.dp
                 ))
-                .background(Color.DarkGray)
+                .background(Color.Black)
                 .padding(end = 18.dp),
-            contentAlignment = Alignment.Center    // 👈 CENTRA EL TEXTO
+            contentAlignment = Alignment.Center    // CENTRA EL TEXTO
         ) {
             Text(
                 text = "Configuración de la ventilación",
-                color = Color.White
+                color = Color.White,
+                fontWeight = FontWeight.Medium,
             )
         }
 
         Box(
             modifier = Modifier
-                .height(35.dp)
-                .width(200.dp).offset(y = (-18).dp)
-                .clip(RoundedCornerShape(
-                    bottomStart = 3.dp,
-                    bottomEnd = 3.dp
-                ))
-                .background(Color.DarkGray)
-                .padding(end = 14.dp),
-            contentAlignment = Alignment.Center    // 👈 CENTRA EL TEXTO
+                .height(130.dp)
+                .fillMaxWidth()
+                .offset(y = (-5).dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color.White),
+            contentAlignment = Alignment.Center,    // CENTRA EL TEXTO
         ) {
             Text(
                 text = "MODO AUTOMÁTICO:",
-                color = Color.White
+                color = Color.DarkGray,
+                modifier = Modifier
+                    .padding(bottom = 100.dp, end = 123.dp),
+                fontWeight = FontWeight.Bold,
             )
-        }
-
-        when {
-            loading -> {
-                Text(text = "Cargando estado automático...")
-            }
-            error != null -> {
-                Text(text = "Error al leer actuator: $error", color = Color.Red)
-            }
-            else -> {
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        activo = !activo
-
-                        val valorEnviar = ActuatorControl(
-                            enabled = activo,
-                            intensity = actuator?.intensity ?: 0,
-                            minIntensity = 15,
-                            maxIntensity = 255,
-                            mode = "automatico"
-                        )
-
-                        escribirFirebase("ActuatorControl", valorEnviar)
-                    },
-                    modifier = Modifier
-                        .width(250.dp)
-                        .height(55.dp)
-                        .padding(start=108.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorBoton
-                    ),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Text(textoBoton)
+            when {//----------------------------------------------
+                loading -> {
+                    Text(text = "Cargando estado automático...")
                 }
-            }
+                error != null -> {
+                    Text(text = "Error al leer actuator: $error", color = Color.Red)
+                }
+                else -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            activo = !activo
+
+                            val valorEnviar = ActuatorControl(
+                                enabled = activo,
+                                intensity = actuator?.intensity ?: 0,
+                                minIntensity = 15,
+                                maxIntensity = 255,
+                                mode = "automatico"
+                            )
+
+                            escribirFirebase("ActuatorControl", valorEnviar)
+                        },
+                        modifier = Modifier
+                            .width(170.dp)
+                            .height(55.dp)
+                            .offset(y = 4.dp),
+                            //.padding(start=108.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorBoton
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(textoBoton)
+                    }
+                }
+            }//----------------------------------
         }
+
     }
 }
 
@@ -280,105 +284,113 @@ fun ModoManual() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(20.dp),
+            .padding(20.dp)
+            .offset(y = (-13).dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Box(
             modifier = Modifier
                 .height(37.dp)
-                .width(250.dp)
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(
                     topStart = 3.dp,
                     topEnd = 3.dp,
                     bottomEnd = 3.dp
                 ))
-                .background(Color.DarkGray)
-                .padding(end = 18.dp),
-            contentAlignment = Alignment.Center    // 👈 CENTRA EL TEXTO
+                .background(Color.Black)
+                .padding(10.dp)
+                //.offset(y = (-8).dp)
+            ,
+            contentAlignment = Alignment.Center    // CENTRA EL TEXTO
         ) {
             Text(
                 text = "Configuración de la ventilación",
-                color = Color.White
+                color = Color.White,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
         Box(
             modifier = Modifier
-                .height(35.dp)
-                .width(200.dp).offset(y = (-28).dp)
-                .clip(RoundedCornerShape(
-                    bottomStart = 3.dp,
-                    bottomEnd = 3.dp
-                ))
-                .background(Color.DarkGray)
-                .padding(end = 26.dp),
-            contentAlignment = Alignment.Center    // 👈 CENTRA EL TEXTO
+                .height(190.dp)
+                .fillMaxWidth()
+                .offset(y = (-15).dp)
+                //.padding(bottom = 29.dp)
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color.White),
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = "MODO MANUAL:",
-                color = Color.White
+                color = Color.DarkGray,
+                modifier = Modifier
+                    .padding(bottom = 150.dp, end = 195.dp),
+                fontWeight = FontWeight.Bold,
+
             )
-        }
-
-        OutlinedTextField(
-            value = intensidadTexto,
-            onValueChange = { newValue ->
-                if (newValue.all { it.isDigit() } || newValue.isEmpty()) {
-                    intensidadTexto = newValue
-                }
-            },
-            label = { Text("Intensidad (0 - 255)") },
-            placeholder = { Text("Ej: 120") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier
-                .width(390.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-
-        if (mensaje != null) {
-            Text(
-                text = mensaje!!,
-                color = Color.Red
+            OutlinedTextField(
+                value = intensidadTexto,
+                onValueChange = { newValue ->
+                    if (newValue.all { it.isDigit() } || newValue.isEmpty()) {
+                        intensidadTexto = newValue
+                    }
+                },
+                label = { Text("Intensidad (0 - 255)") },
+                placeholder = { Text("Ej: 120") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier
+                    .width(300.dp)
+                    .padding(bottom =35.dp)
             )
-        }
 
-        Button(
-            onClick = {
-                val intensidad = intensidadTexto.toIntOrNull()
+            if (mensaje != null) {
+                Text(
+                    text = mensaje!!,
+                    color = Color.Red
+                )
+            }
 
-                if (intensidad == null || intensidad !in 0..255) {
-                    mensaje = "Ingresa un valor numérico entre 0 y 255."
-                } else {
+            Button(
+                onClick = {
+                    val intensidad = intensidadTexto.toIntOrNull()
 
-                    val valorEnviar = ActuatorControl(
-                        enabled = enabledActual,
-                        intensity = intensidad,
-                        minIntensity = 0,
-                        maxIntensity = 255,
-                        mode = "manual"
-                    )
-
-                    escribirFirebase(
-                        field = "ActuatorControl",
-                        value = valorEnviar
-                    )
-
-                    /*mensaje = if (enabledActual) {
-                        "Intensidad guardada y el sistema está ENCENDIDO."
+                    if (intensidad == null || intensidad !in 0..255) {
+                        mensaje = "Ingresa un valor numérico entre 0 y 255."
                     } else {
-                        "Intensidad guardada, pero el sistema está APAGADO."
-                    }*/
-                }
-            },
-            modifier = Modifier
-                .width(100.dp)
-                .height(48.dp).align(Alignment.CenterHorizontally),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2196F3)
-            ),
-            shape = RoundedCornerShape(10.dp)
-        ) {
-            Text(text = "OK")
+
+                        val valorEnviar = ActuatorControl(
+                            enabled = enabledActual,
+                            intensity = intensidad,
+                            minIntensity = 0,
+                            maxIntensity = 255,
+                            mode = "manual"
+                        )
+
+                        escribirFirebase(
+                            field = "ActuatorControl",
+                            value = valorEnviar
+                        )
+
+                        /*mensaje = if (enabledActual) {
+                            "Intensidad guardada y el sistema está ENCENDIDO."
+                        } else {
+                            "Intensidad guardada, pero el sistema está APAGADO."
+                        }*/
+                    }
+                },
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(48.dp)
+                    .offset(y = 55.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2196F3)
+                ),
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text(text = "OK")
+            }
         }
+
+
     }
 }

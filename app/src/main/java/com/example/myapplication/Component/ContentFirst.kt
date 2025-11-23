@@ -32,9 +32,10 @@ fun Botones(){
     Column(
         modifier = Modifier
             .padding(bottom = 100.dp)//Esto sube el colum de top al centro
-            .background(Color.LightGray).offset(y = (-10).dp),
+            .background(Color.LightGray)
+            .offset(y = (-45).dp),
         //horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(35.dp)//SEPARA_ENTRE_TODO_LOs_COMPONENTES
+        verticalArrangement = Arrangement.spacedBy(26.dp)//SEPARA_ENTRE_TODO_LOs_COMPONENTES
     ) {
 
         // ---------- BOTÓN APAGAR ----------
