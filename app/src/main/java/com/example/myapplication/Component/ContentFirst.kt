@@ -81,10 +81,11 @@ fun Botones() {
 
                 val valorEnviar = ActuatorControl(
                     enabled = false,
-                    intensity = actuator?.intensity ?: 15,
-                    minIntensity = actuator?.minIntensity ?: 0,
-                    maxIntensity = actuator?.maxIntensity ?: 255,
-                    mode = "manual"
+                    intensity = 0, //sólo cuando quieres mantener el valor previamente almacenado en Firebase si existe
+                    minIntensity = 0,
+                    maxIntensity = 0,
+                    mode = "off",
+                    last_update = (System.currentTimeMillis() / 1000).toInt()
                 )
 
                 escribirFirebase(
@@ -113,11 +114,12 @@ fun Botones() {
                 estado = true
 
                 val valorEnviar = ActuatorControl(
-                    enabled = true,
-                    intensity = actuator?.intensity ?: 15,
-                    minIntensity = actuator?.minIntensity ?: 0,
-                    maxIntensity = actuator?.maxIntensity ?: 255,
-                    mode = "manual"
+                    enabled = true,//cuando quieres forzar que al presionar el botón la intensidad sea exactamente
+                    intensity = 15, //actuator?.intensity ?: 15,
+                    //minIntensity = actuator?.minIntensity ?: 0,
+                    //maxIntensity = actuator?.maxIntensity ?: 255,
+                    mode = "off",
+                    last_update = (System.currentTimeMillis() / 1000).toInt()
                 )
 
                 escribirFirebase(

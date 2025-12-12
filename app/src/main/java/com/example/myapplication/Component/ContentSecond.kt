@@ -120,7 +120,7 @@ fun MostrarTemp() {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Sensor: ${sensor?.raw_value ?: 0} °C",
+                            text = "${sensor?.temp ?: 0} °C",
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 27.sp,
                             color = Color.Black
@@ -214,10 +214,11 @@ fun ModoAutomatico() {
 
                             val valorEnviar = ActuatorControl(
                                 enabled = onoff,
-                                intensity = actuator?.intensity ?: 0,
-                                minIntensity = 15,
+                                intensity = 0,
+                                minIntensity = 10,
                                 maxIntensity = 255,
-                                mode = "automatico"
+                                mode = "automatico",
+                                last_update = (System.currentTimeMillis() / 1000).toInt()
                             )
 
                             escribirFirebase("ActuatorControl", valorEnviar)
@@ -361,8 +362,9 @@ fun ModoManual() {
                             enabled = enabledActual,
                             intensity = intensidad,
                             minIntensity = 0,
-                            maxIntensity = 255,
-                            mode = "manual"
+                            maxIntensity = 0,
+                            mode = "manual",
+                            last_update = (System.currentTimeMillis() / 1000).toInt()
                         )
 
                         escribirFirebase(

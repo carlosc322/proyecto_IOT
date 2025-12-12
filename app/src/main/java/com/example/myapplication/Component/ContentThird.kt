@@ -110,7 +110,7 @@ fun HistorialSensor() {
                 .offset(y = (-214).dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Temperatura: ${dato.raw_value} °C",
+            Text("Temperatura: ${dato.temp} °C",
                 color = Color.White,
                 modifier = Modifier.
                 padding(start = 17.dp))
