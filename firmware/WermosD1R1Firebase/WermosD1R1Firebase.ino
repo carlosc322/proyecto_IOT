@@ -19,6 +19,8 @@ String actuator_url = "https://" + String(firebase_host) + "/ActuatorControl.jso
 const int ledPin = D4;     // LED integrado (GPIO2)
 const int ledPWMPin = D5;  // LED externo con PWM (GPIO5)
 
+float lastTemperature = 0.0;
+
 //sensor---
 const float ADC_VREF = 3.3; //Voltaje máximo que A0 puede medi
 const int   ADC_MAX  = 1023; //Resolución del ADC del ESP8266
@@ -151,6 +153,7 @@ void sendSensorDataToFirebase() {
   int rawValue = analogRead(sensorPin); //Paso 1: Leer el sensor, Devuelve un número entre 0(frio) y 1023(caliente).
   float voltage = rawValue * (ADC_VREF / ADC_MAX);//Paso 2: Convertirlo a voltaje
   float temp = (voltage - 0.5)*100.0;
+  lastTemperature = temp;
   
   //Mostrar datos por Serial, Esto es solo para que tú lo veas en la computadora
   Serial.println("=== ENVIANDO DATOS SENSOR ==="); 
@@ -208,8 +211,11 @@ void readActuatorControlFromFirebase() {
     //Extraer los valores del JSON
     if (!error) {
       int intensity = doc["intensity"] | 100;//nivel de potencia del ventilador
-      bool enabled = doc["enabled"] | true;
-      String mode = doc["mode"] | "manual";
+      int minIntensity  = doc["minIntensity"] | 0;
+      int maxIntensity  = doc["maxIntensity"] | 255;
+      bool enabled      = doc["enabled"] | false;
+      String mode       = doc["mode"] | "off";
+
       
       Serial.print("Intensidad: ");
       Serial.println(intensity);
@@ -219,7 +225,13 @@ void readActuatorControlFromFirebase() {
       Serial.println(mode);
       
       // Aplicar control, Aplicar el control al ventilador
-      applyActuatorControl(intensity, enabled, mode);//Esta es la línea que controla físicamente el actuador.
+      applyActuatorControl(//Esta es la línea que controla físicamente el actuador.
+        intensity,
+        minIntensity,
+        maxIntensity,
+        enabled,
+        mode
+      );
       //Aquí es donde el Wemos:
       //enciende / apaga el ventilador
       //Cambia la velocidad
@@ -237,10 +249,16 @@ void readActuatorControlFromFirebase() {
 }
 
 //APLIACION AL ACTUADOR
-void applyActuatorControl(int intensity, bool enabled, String mode) {//<- funcion: Traducir esos valores en una señal PWM real
-  if (!enabled) {//Si enabled es false, apaga todo inmediatamente y sale de la función.
-    digitalWrite(ledPin, HIGH);    // OFF, apaga el LED integrado(en ESP8266 el LED suele ser active LOW, por eso HIGH = OFF).
+void applyActuatorControl(//<- funcion: Traducir esos valores en una señal PWM real
+  int intensity,
+  int minIntensity,
+  int maxIntensity,
+  bool enabled,
+  String mode
+) {
+  if (!enabled || mode == "off") {//Si enabled es false, apaga todo inmediatamente y sale de la función.
     analogWrite(ledPWMPin, 0);     // OFF, Apaga el ventilador o LED PWM
+    digitalWrite(ledPin, HIGH);    // OFF, apaga el LED integrado(en ESP8266 el LED suele ser active LOW, por eso HIGH = OFF).
     Serial.println("→ Actuador DESHABILITADO");
     return;
   }
@@ -255,38 +273,25 @@ void applyActuatorControl(int intensity, bool enabled, String mode) {//<- funcio
 
     //MODO AUTO
     //Nota práctica: analogRead en ESP8266 da 0–1023; map aquí transforma esa escala a 0–255.
-  } else if (mode == "auto") {
-    int sensorValue = analogRead(sensorPin);//Lee  el sensor ahora mismo (analogRead devuelve ~0–1023).
-    pwmValue = map(sensorValue, 0, 1024, 0, 255);//map(sensorValue, 0, 1024, 0, 255) convierte la lectura del sensor a la escala 0–255 para PWMEj.: sensor=512 → pwm ≈ 127..
+  } else if (mode == "automatico") {
+    float temp = lastTemperature;
+     // Rango de temperatura (ajustable)
+    float tempMin = 24.0;//23.0
+    float tempMax = 27.0;
+    pwmValue = map(//map(sensorValue, 0, 1024, 0, 255) convierte la lectura del sensor a la escala 0–255 para PWMEj.: sensor=512 → pwm ≈ 127.
+      temp,
+      tempMin,
+      tempMax,
+      minIntensity,
+      maxIntensity
+    );
     //map(valor, minimoEntrada, maximoEntrada, minimoSalida, maximoSalida)<- Convertir un valor del sensor que está entre 0 y 1024 a un valor de PWM entre 0 y 255.
-    Serial.print("→ AUTO - Sensor: ");
-    Serial.print(sensorValue);
-    Serial.print(" → PWM: ");
+    pwmValue = constrain(pwmValue, minIntensity, maxIntensity);
+  }
+    analogWrite(ledPWMPin, pwmValue);
+    digitalWrite(ledPin, pwmValue > 10 ? LOW : HIGH);
+    Serial.print("→ PWM aplicado: ");
     Serial.println(pwmValue);
-  } else if (mode == "off") {
-    pwmValue = 0;//Fuerza apagado total (pwm = 0).
-  }
-  
-  // Aplicar PWM
-  analogWrite(ledPWMPin, pwmValue);//Envía el valor PWM al pin que controla la potencia del actuador (LED externo o ventilador vía driver).
-  
-  // LED indicador
-  if (pwmValue > 10) {
-    digitalWrite(ledPin, LOW);   // ON <- Si la potencia es pequeña (>10) enciende el LED indicador (LOW = ON en la placa).
-  } else {
-    digitalWrite(ledPin, HIGH);  // OFF <- Si es muy bajo o 0, apaga el indicador.
-  }
-
-  //Mostrar porcentaje
-  //Calcula el % relativo a 255 y lo imprime con 1 decimal.
-  //Ej.: pwmValue = 128 → ~50.2%.
-  float porcentaje = (pwmValue / 255.0) * 100.0;
-  Serial.print("→ LED PWM: ");
-  Serial.print(pwmValue);
-  Serial.print("/255 (");
-  Serial.print(porcentaje, 1);
-  Serial.println("%)");
-  //Se usa para depuración (para que TÚ lo veas en el Serial Monitor).
 }
 
 bool sendHttpsRequest(String method, String url, String payload) {//una función genérica para enviar peticiones HTTPS al servidor de Firebase.
