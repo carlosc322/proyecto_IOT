@@ -250,7 +250,7 @@ fun ModoAutomatico() {
                                 enabled = onoff, // SE RESPETA
                                 intensity = 0,
                                 minIntensity = 180,
-                                maxIntensity = 250,
+                                maxIntensity = 255,
                                 mode = "automatico",
                                 last_update = (System.currentTimeMillis() / 1000).toInt()
                             )
