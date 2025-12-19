@@ -276,8 +276,8 @@ void applyActuatorControl(//<- funcion: Traducir esos valores en una señal PWM 
   } else if (mode == "automatico") {
     float temp = lastTemperature;
      // Rango de temperatura (ajustable)
-    float tempMin = 24.0;//23.0
-    float tempMax = 27.0;
+    float tempMin = 18.0;//23.0
+    float tempMax = 22.0;
     pwmValue = map(//map(sensorValue, 0, 1024, 0, 255) convierte la lectura del sensor a la escala 0–255 para PWMEj.: sensor=512 → pwm ≈ 127.
       temp,
       tempMin,
